@@ -169,7 +169,7 @@ void ui_manage_scan(void *priv)
        gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
         gpio_set_output_value(TCFG_LED_GREEN_PIN, 1);
         gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-        gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+        gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
         break;
 
     case STATUS_BT_SLAVE_CONN_MASTER:
@@ -194,7 +194,7 @@ void ui_manage_scan(void *priv)
     case STATUS_BT_DISCONN:
         log_info("[STATUS_BT_DISCONN]\n");
        // pwm_led_mode_set(p_led->bt_disconnect);
-       //todo 无连接，蓝灯慢闪,==暂时做成 开绿灯，关蓝灯
+       //todo 无连接，蓝灯慢闪==暂时做成 开绿灯，关蓝灯
         gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
         gpio_set_output_value(TCFG_LED_GREEN_PIN, 1);
         gpio_set_direction(TCFG_LED_BLUE_PIN, 0);

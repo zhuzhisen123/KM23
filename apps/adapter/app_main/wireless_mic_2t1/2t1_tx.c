@@ -627,11 +627,18 @@ static int adapter_key_event_handler(struct sys_event *event)
 
     static u8 key_poweroff_cnt = 0;
     static u8 flag_poweroff = 0;
+
+    if(key_event == KEY_WIRELESS_MIC_DENOISE_SET){
+        return ret;
+    }
+    
     printf("key_event:%d %d %d\n", key_event, key->value, key->event);
     if(key_event == KEY_WLM_DENOISE_SW){
         key_event = KEY_WIRELESS_MIC_DENOISE_SET;
     }
     printf("key_event:%d %d %d\n", key_event, key->value, key->event);
+
+
     switch (key_event) {
     //case KEY_MUSIC_PP:
     //case KEY_MUSIC_NEXT:
