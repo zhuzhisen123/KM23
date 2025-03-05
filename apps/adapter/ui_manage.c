@@ -166,10 +166,9 @@ void ui_manage_scan(void *priv)
         log_info("[STATUS_BT_INIT_OK]\n");
        // pwm_led_mode_set(p_led->bt_init_ok);
        //开绿灯 关蓝灯
-       gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
-        gpio_set_output_value(TCFG_LED_GREEN_PIN, 1);
-        gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-        gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
+    //    gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
+    //     gpio_set_output_value(TCFG_LED_GREEN_PIN, 1);
+    //     gpio_set_direction(TCFG_LED_BLUE_PIN, 1);
         break;
 
     case STATUS_BT_SLAVE_CONN_MASTER:
@@ -180,10 +179,9 @@ void ui_manage_scan(void *priv)
         log_info("[STATUS_BT_CONN]\n");
        // pwm_led_mode_set(p_led->bt_connect_ok);
        //连接上 开蓝灯 关绿灯
-        gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
-        gpio_set_output_value(TCFG_LED_GREEN_PIN, 0);
-       gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-        gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+    //     gpio_set_direction(TCFG_LED_GREEN_PIN, 1);
+    //    gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+    //     gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
         break;
 
     case STATUS_BT_MASTER_CONN_ONE:
@@ -195,10 +193,9 @@ void ui_manage_scan(void *priv)
         log_info("[STATUS_BT_DISCONN]\n");
        // pwm_led_mode_set(p_led->bt_disconnect);
        //todo 无连接，蓝灯慢闪==暂时做成 开绿灯，关蓝灯
-        gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
-        gpio_set_output_value(TCFG_LED_GREEN_PIN, 1);
-        gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-        gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
+        // gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
+        // gpio_set_output_value(TCFG_LED_GREEN_PIN, 1);
+        // gpio_set_direction(TCFG_LED_BLUE_PIN, 1);
         break;
 
     case STATUS_PHONE_INCOME:

@@ -11,6 +11,8 @@
 #include "app_config.h"
 #include "rdec_key.h"
 #include "tent600_key.h"
+#include "user_cfg.h"
+
 #if TCFG_KEY_TONE_EN
 #include "tone_player.h"
 #endif
@@ -103,6 +105,25 @@ void usr_led_vol_deal(u8 dn_up)
 {
 }
 
+/**
+ * 连接蓝灯常亮
+ * 无连接蓝灯慢闪
+ */
+
+void wlm_connect_led(u8 en) // blue
+{
+    if(en){
+        gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+        gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+    }else{
+        os_time_dly(50);
+        gpio_set_direction(TCFG_LED_BLUE_PIN, 1);
+        os_time_dly(50);
+        gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+        gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+    }
+}
+
 void led_scan(void)
 {
     if(app_var.flag_tx_conn){
@@ -163,7 +184,8 @@ void led_scan(void)
             }
 
             if(1){
-                if(app_var.flag_tx_conn){
+                if(app_var.flag_tx_conn){    
+                    wlm_connect_led(1);                
                     if(app_var.flag_charge){
                         usr_led_charge(1);
                         usr_led_denoise(0);
@@ -198,6 +220,7 @@ void led_scan(void)
                     app_var.wlm_pair_clear = 0;
                     // putchar('c');
                 }else{
+                    wlm_connect_led(0);
                     // putchar('n');
                     // g_printf("wlm_pair_clear=%d\n", app_var.wlm_pair_clear);
                     if(app_var.wlm_pair_clear){
