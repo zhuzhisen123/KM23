@@ -116,11 +116,7 @@ void wlm_connect_led(u8 en) // blue
         gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
         gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
     }else{
-        os_time_dly(50);
         gpio_set_direction(TCFG_LED_BLUE_PIN, 1);
-        os_time_dly(50);
-        gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-        gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
     }
 }
 
@@ -130,6 +126,7 @@ void led_scan(void)
 		if(app_var.tx_mute_cnt){
 			app_var.tx_mute_cnt--;
         }
+        wlm_connect_led(1);
 	}
 
     if(app_var.flag_rf_dut){
@@ -272,6 +269,14 @@ void led_scan(void)
         }
 
         flag_100ms = 0;
+    }
+    if(!(app_var.flag_tx_conn)){
+        if(flag_500ms){
+            wlm_connect_led(1);
+            flag_500ms = 0;
+        }else{
+            wlm_connect_led(0);
+        }
     }
 }
 
