@@ -24,6 +24,12 @@
 
 
 
+
+
+
+
+
+
   local_irq_enable = ABSOLUTE(0x10fdf8);
   local_irq_disable = ABSOLUTE(0x10fdfc);
   lp_enter = ABSOLUTE(0x10fe00);
@@ -220,6 +226,7 @@
   _MASK_MEM_BEGIN = ABSOLUTE(0x2bbe0);
   _MASK_MEM_SIZE = ABSOLUTE(0x308);
 
+
 EXTERN(
 _start
 
@@ -254,6 +261,7 @@ cvsd_encoder
 
 msbc_encoder
 sbc_encoder
+
 );
 
 UPDATA_SIZE = 0x80;
@@ -368,6 +376,7 @@ SECTIONS
 
 
         BTSTACK_CODE_TOTAL_SIZE = btstack_code_end - btstack_code_start;
+
 
   . = ALIGN(4);
         system_text_start = .;
@@ -542,6 +551,7 @@ SECTIONS
 
         system_code_total_size = system_text_end - system_text_start;
 
+
         . = ALIGN(4);
 
         lcd_interface_begin = .;
@@ -579,6 +589,7 @@ SECTIONS
         battery_notify_begin = .;
         *(.battery_notify)
         battery_notify_end = .;
+
 
   . = ALIGN(4);
      update_target_begin = .;
@@ -1159,6 +1170,7 @@ SECTIONS
         media_code_total_size = media_text_end - media_text_start;
 
 
+
   . = ALIGN(4);
         __VERSION_BEGIN = .;
         KEEP(*(.sys.version))
@@ -1397,7 +1409,8 @@ SECTIONS
 
                 . = ALIGN(4);
         media_data_end = .;
- . = ALIGN(4);
+
+  . = ALIGN(4);
 
   *(.wav_data)
   *(.wav_dec_data)
@@ -1433,7 +1446,8 @@ SECTIONS
 
 
         btstack_data_end = .;
- . = ALIGN(4);
+
+  . = ALIGN(4);
 
 
   . = ALIGN(4);
@@ -1544,7 +1558,8 @@ SECTIONS
          __movable_slot_end = .;
 
         system_data_end = .;
- . = ALIGN(4);
+
+  . = ALIGN(4);
  } > ram0
 
  .bss ALIGN(32):
@@ -1567,7 +1582,8 @@ SECTIONS
         BTSTACK_LE_HOST_MESH_BSS_SIZE = ABSOLUTE(. - BTSTACK_LE_HOST_MESH_BSS_START);
 
         btstack_bss_end = .;
- . = ALIGN(4);
+
+        . = ALIGN(4);
 
 
         system_bss_start = .;
@@ -1582,7 +1598,8 @@ SECTIONS
         *(.ECDH_sample_bss)
 
         system_bss_end = .;
- . = ALIGN(4);
+
+        . = ALIGN(4);
         *(.bss)
         . = ALIGN(4);
 
@@ -1723,7 +1740,8 @@ SECTIONS
         *(.jlsp_bss)
         *(.llns.bss)
         media_bss_end = .;
- . = ALIGN(4);
+
+        . = ALIGN(4);
 
   *(.wav_bss)
   *(.wav_dec_bss)
@@ -2222,6 +2240,7 @@ SECTIONS
 }
 
 
+
 SECTIONS
 {
     .data : ALIGN(4)
@@ -2253,6 +2272,7 @@ SECTIONS
 
     UPDATE_CODE_TOTAL_SIZE = update_code_end - update_code_start;
 }
+
 SECTIONS
 {
     .data : ALIGN(4)
@@ -2318,6 +2338,7 @@ SECTIONS
     DRIVER_RAM_TOTAL = (driver_data_end - driver_data_start) + (driver_bss_end - driver_bss_start);
     DRIVER_CODE_TOTAL = (driver_code_end - driver_code_start);
 }
+
 
 text_begin = ADDR(.text);
 text_size = SIZEOF(.text);
