@@ -87,6 +87,13 @@ void usr_led_echo(u8 on)
 
 void usr_led_mute(u8 on)
 {
+    if(on){
+        gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
+	    gpio_set_output_value(TCFG_LED_GREEN_PIN, 1);
+    }else{
+        gpio_set_direction(TCFG_LED_GREEN_PIN, 1);
+    }
+    
 	// gpio_set_direction(IO_PORTC_05, 0);
 	// gpio_set_output_value(IO_PORTC_05, on);
 }
@@ -122,6 +129,11 @@ void wlm_connect_led(u8 en) // blue
 
 void led_scan(void)
 {
+    if(app_var.flag_tx_mute){
+        usr_led_mute(1);
+    }else{
+        usr_led_mute(0);
+    }
     if(app_var.flag_tx_conn){
 		if(app_var.tx_mute_cnt){
 			app_var.tx_mute_cnt--;

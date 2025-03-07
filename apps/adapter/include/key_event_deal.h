@@ -59,6 +59,8 @@ enum {
     KEY_WLM_DENOISE_SW,
     KEY_WLM_EQ_SW,
 
+    KEY_MUTE,
+
     KEY_FM_SCAN_ALL,
     KEY_FM_SCAN_ALL_UP,
     KEY_FM_SCAN_ALL_DOWN,
