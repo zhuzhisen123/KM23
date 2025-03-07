@@ -78,12 +78,21 @@ struct logbuf {
 #define log_c(x)
 #endif
 
-#define r_printf(x, ...)  log_i("\e[31m\e[1m" x "\e[0m", ## __VA_ARGS__)
-#define g_printf(x, ...)  log_i("\e[32m\e[1m" x "\e[0m", ## __VA_ARGS__)
-#define y_printf(x, ...)  log_i("\e[33m\e[1m" x "\e[0m", ## __VA_ARGS__)
-#define r_f_printf(x, ...)  log_i("\e[31m\e[5m\e[1m" x "\e[0m", ## __VA_ARGS__)
-#define g_f_printf(x, ...)  log_i("\e[32m\e[5m\e[1m" x "\e[0m", ## __VA_ARGS__)
-#define y_f_printf(x, ...)  log_i("\e[33m\e[5m\e[1m" x "\e[0m", ## __VA_ARGS__)
+#define ne_jl_printf(fmt, ...)  printf("【NEWWER】[%s:%d][%s]:[JL]"fmt"\r\n", __FILE__, __LINE__,__FUNCTION__, ##__VA_ARGS__)
+#define ne_printf(fmt, ...)  printf("【NEWWER】[%s:%d][%s]:"fmt"\r\n", __FILE__, __LINE__,__FUNCTION__, ##__VA_ARGS__)
+#define r_printf(fmt, ...)  printf("【NEWWER】[%s:%d][%s]:"fmt"\r\n", __FILE__, __LINE__,__FUNCTION__, ##__VA_ARGS__)
+#define g_printf(fmt, ...)  printf("【NEWWER】[%s:%d][%s]:"fmt"\r\n", __FILE__, __LINE__,__FUNCTION__, ##__VA_ARGS__)
+#define y_printf(fmt, ...)  printf("【NEWWER】[%s:%d][%s]:"fmt"\r\n", __FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__)
+#define r_f_printf(fmt, ...)  printf("【NEWWER】[%s:%d][%s]:"fmt"\r\n", __FILE__, __LINE__,__FUNCTION__, ##__VA_ARGS__)
+#define g_f_printf(fmt, ...)  printf("【NEWWER】[%s:%d][%s]:"fmt"\r\n", __FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__)
+#define y_f_printf(fmt, ...)  printf("【NEWWER】[%s:%d][%s]:"fmt"\r\n", __FILE__, __LINE__,__FUNCTION__, ##__VA_ARGS__)
+
+// #define r_printf(x, ...)  log_i("\e[31m\e[1m" x "\e[0m", ## __VA_ARGS__)
+// #define g_printf(x, ...)  log_i("\e[32m\e[1m" x "\e[0m", ## __VA_ARGS__)
+// #define y_printf(x, ...)  log_i("\e[33m\e[1m" x "\e[0m", ## __VA_ARGS__)
+// #define r_f_printf(x, ...)  log_i("\e[31m\e[5m\e[1m" x "\e[0m", ## __VA_ARGS__)
+// #define g_f_printf(x, ...)  log_i("\e[32m\e[5m\e[1m" x "\e[0m", ## __VA_ARGS__)
+// #define y_f_printf(x, ...)  log_i("\e[33m\e[5m\e[1m" x "\e[0m", ## __VA_ARGS__)
 
 #ifndef __LOG_ENABLE
 #define log_dump(a, b)              do {} while(0)

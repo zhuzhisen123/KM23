@@ -33,12 +33,29 @@ static u8 command = WIRELESS_MIC_DENOISE_OFF;
 static u8 echo_cmd = WIRELESS_MIC_ECHO_OFF;
 u8 wireless_conn_status = 0;
 struct mic_tx2rx_info{
+    u8 op_code;
+    u8 op_code_sn;
+    u8 dev_num_req;
+    u8 device_type; // channel + 1
+
+    u8 param_len;
+    u8 dev_status_type;
+
+    //设置状态
+    u8 busi_status;
+
+    // 查询某个状态
+    u8 dev_status;
+
     u8 channel_flag;
     u8 command;
+    u8 mute;
+    u8 dev_num_req;
 };
 //static u16 tx_cmd = 0;
 static struct mic_tx2rx_info *tx_cmd = NULL;
 
+static u8 mute_index = 0;
 u8 user_voice_changer_mode = 0;
 
 extern void adapter_wireless_enc_command_send(u8 command);
@@ -638,6 +655,9 @@ static int adapter_key_event_handler(struct sys_event *event)
     }
     printf("key_event:%d %d %d\n", key_event, key->value, key->event);
 
+    if(key_event==KEY_WLM_EQ_SW){
+        key_event = KEY_MUTE;
+    }
 
     switch (key_event) {
     //case KEY_MUSIC_PP:
@@ -888,6 +908,22 @@ static int adapter_key_event_handler(struct sys_event *event)
         printf("KEY_WLM_EQ_SW:%d\n", index);
         user_eq_file_change(index);
         break;
+    case KEY_MUTE:
+        mute_index = !mute_index;
+        printf("KEY_MUTE:%d\n", mute_index);
+        printf("app_var.tx_mic_gain:%d\n", app_var.tx_mic_gain);
+        if(mute_index==0){
+            user_audio_adc_mic_set_gain(0);
+            app_var.flag_tx_mute = 1;
+            syscfg_write(CFG_USER_MICVOL_MEM, &app_var.tx_mic_gain, 1);
+
+        }else{
+            app_var.flag_tx_mute = 0;
+            syscfg_read(CFG_USER_MICVOL_MEM, &app_var.tx_mic_gain, 1);
+            printf("syscfg_read,app_var.tx_mic_gain:%d\n", app_var.tx_mic_gain);
+            user_audio_adc_mic_set_gain(app_var.tx_mic_gain);
+
+        }
 #if WIRELESS_ECHO_ENABLE||WIRELESS_PLATE_REVERB_ENABLE
 
     case KEY_WIRELESS_MIC_ECHO_SET:
