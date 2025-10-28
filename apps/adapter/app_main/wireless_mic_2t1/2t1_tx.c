@@ -1102,9 +1102,11 @@ void wireless_mic_server_recieve_data(void *priv, void *data, u16 len)
     if(ID==0x66){
         app_task_put_key_msg(KEY_DENOISE_ON, 0);
         app_var.flag_wlm_denoise[1] = ID2;
+        command = ID2;
     }else if(ID==0x55){
         app_task_put_key_msg(KEY_DENOISE_ON, 0);
         app_var.flag_wlm_denoise[1] = ID2;
+        command = ID2;
     }else if(ID==0x44){
         app_task_put_key_msg(KEY_VOICE_CHANGE_SW, 0);
     }else if(ID==0x33){

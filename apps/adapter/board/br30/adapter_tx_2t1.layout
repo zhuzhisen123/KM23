@@ -2,19 +2,9 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Release" />
-	<File name="board_wireless_mic_2t1_tx\board_wireless_mic_2t1_tx_cfg.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\..\common\init.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="14462" topLine="297" />
-		</Cursor>
-	</File>
-	<File name="board_wireless_mic_2t1_tx\board_wireless_mic_2t1_tx.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="9903" topLine="248" />
-		</Cursor>
-	</File>
-	<File name="..\..\app_main\wireless_mic_2t1\2t1_tx.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="13425" topLine="450" />
+			<Cursor1 position="1800" topLine="74" />
 		</Cursor>
 	</File>
 	<File name="..\..\common\bt_common\bt_status_event.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -22,9 +12,19 @@
 			<Cursor1 position="19094" topLine="586" />
 		</Cursor>
 	</File>
-	<File name="..\..\common\init.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="board_wireless_mic_2t1_tx\board_wireless_mic_2t1_tx_cfg.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1800" topLine="74" />
+			<Cursor1 position="14462" topLine="297" />
+		</Cursor>
+	</File>
+	<File name="..\..\app_main\wireless_mic_2t1\2t1_tx.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="13085" topLine="436" />
+		</Cursor>
+	</File>
+	<File name="board_wireless_mic_2t1_tx\board_wireless_mic_2t1_tx.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="9903" topLine="248" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
