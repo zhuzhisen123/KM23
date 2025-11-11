@@ -4,6 +4,7 @@
 #include "app_task.h"
 #include "app_config.h"
 #include "app_main.h"
+#include "user_cfg.h"
 
 #if TCFG_CHARGE_ENABLE
 //*----------------------------------------------------------------------------*/
@@ -90,7 +91,8 @@ void app_charge_run(void)
     int msg[32];
 
     idle_app_start();
-
+    new_handle.poweroff_charge_flag=1;
+    usr_tx_init();
     while (1) {
         app_task_get_msg(msg, ARRAY_SIZE(msg), 1);
 
@@ -113,6 +115,7 @@ void app_charge_run(void)
             break;
         }
     }
+    new_handle.poweroff_charge_flag=0;
     printf("exit charge_run");
 }
 #endif

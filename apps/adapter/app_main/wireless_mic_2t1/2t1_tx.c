@@ -50,12 +50,11 @@ struct mic_tx2rx_info{
     u8 channel_flag;
     u8 command;
     u8 mute;
-    u8 dev_num_req;
 };
 //static u16 tx_cmd = 0;
 static struct mic_tx2rx_info *tx_cmd = NULL;
 
-static u8 mute_index = 0;
+static u8 mute_index = 1;
 u8 user_voice_changer_mode = 0;
 
 extern void adapter_wireless_enc_command_send(u8 command);
@@ -251,6 +250,24 @@ int encoder_pro_handler(struct audio_stream_entry *entry,  struct audio_data_fra
     }
 }
 
+void user_set_denoise(u8 denoise_cmd)
+{
+    switch (denoise_cmd){
+        case 1:
+            printf("关闭降噪\n");
+            // gpio_set_direction(TCFG_LED_GREEN_PIN, 1);
+            adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SWITCH, 1, (int *)1);
+            adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SET_PARM, 1, (int *)&denoise_parm_1);
+            break;
+        case 2:
+            printf("3级降噪\n");
+            adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SWITCH, 1, (int *)1);
+            adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SET_PARM, 1, (int *)&denoise_parm_4);
+            // gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
+            // gpio_set_output_value(TCFG_LED_GREEN_PIN, 1);
+            break;
+    }
+}
 
 static void auto_mute_handler(u8 event, u8 ch)
 {
@@ -768,53 +785,42 @@ static int adapter_key_event_handler(struct sys_event *event)
             printf("no conn,break");
             break;
         }
-#endif
-        command++;
-        if (command > WIRELESS_MIC_DENOISE_LEVEL_MAX) {
-            command = WIRELESS_MIC_DENOISE_OFF;
+
+        if(app_var.flag_tx_mute){
+            printf("mute,break");
+            break;
         }
-        printf("KEY_WIRELESS_MIC_DENOISE_SET %d\n", command);
+#endif
+        // command++;
+        if(app_var.flag_wlm_denoise[1] == 0){
+            app_var.flag_wlm_denoise[1] = WIRELESS_MIC_DENOISE_OFF;
+        }
+        app_var.flag_wlm_denoise[1]++;
+        if (app_var.flag_wlm_denoise[1] > WIRELESS_MIC_DENOISE_LEVEL_1) {
+            app_var.flag_wlm_denoise[1] = WIRELESS_MIC_DENOISE_OFF;
+        }
+        printf("KEY_WIRELESS_MIC_DENOISE_SET %d\n", app_var.flag_wlm_denoise[1]);
+        // app_var.flag_wlm_denoise[1] = command;
+        syscfg_write(CFG_USER_WLM_DENOISE_GEAR, app_var.flag_wlm_denoise, 2);
+        user_set_denoise(app_var.flag_wlm_denoise[1]);
         struct mic_tx2rx_info *mic_tx2rx_info = (struct mic_tx2rx_info *)zalloc(sizeof(struct mic_tx2rx_info));
-        mic_tx2rx_info->channel_flag = 0x66;
-        mic_tx2rx_info ->command =command;
-        tx_send_data_to_rx(mic_tx2rx_info);
-        // if (wireless_mic_media) {
-        //     switch (command) {
-        //     case 1:
-        //         //关闭降噪
-        //         /* adapter_media_stop(wireless_mic_media); */
-        //         /* adapter_media_start(wireless_mic_media); */
-        //         adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SWITCH, 1, (int *)0);
-        //         break;
-        //     case 2:
-        //         //轻度降噪
-        //         /* adapter_media_stop(wireless_mic_media); */
-        //         /* adapter_media_start(wireless_mic_media); */
-        //         adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SWITCH, 1, (int *)1);
-        //         adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SET_PARM, 1, (int *)&denoise_parm_1);
-        //         break;
-        //     case 3:
-        //         //中度降噪
-        //         adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SWITCH, 1, (int *)1);
-        //         adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SET_PARM, 1, (int *)&denoise_parm_2);
-        //         break;
-        //     case 4:
-        //         //深度降噪
-        //         adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SWITCH, 1, (int *)1);
-        //         adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SET_PARM, 1, (int *)&denoise_parm_3);
-        //         break;
-        //     default:
-        //         break;
-        //     }
+        // if(app_var.flag_wlm_denoise[1] == 1){
+        //     mic_tx2rx_info->channel_flag=0x66;  
+        // }else{
+        //     mic_tx2rx_info->channel_flag=0x55;
         // }
+        mic_tx2rx_info->channel_flag = new_handle.channel_num;
+        mic_tx2rx_info->command = app_var.flag_wlm_denoise[1];
+        tx_send_data_to_rx(mic_tx2rx_info);
         break;
     case KEY_DENOISE_ON:
         printf("KEY_DENOISE_ON=%d\n", app_var.flag_wlm_denoise[1]);
         app_var.cnt_low_power_denoise = 10;
+        syscfg_write(CFG_USER_WLM_DENOISE_GEAR, app_var.flag_wlm_denoise, 2);
         switch (app_var.flag_wlm_denoise[1]){
            case 1:
                 printf("关闭降噪\n");
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 1);
+                // gpio_set_direction(TCFG_LED_GREEN_PIN, 1);
                 adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SWITCH, 1, (int *)1);
                 adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SET_PARM, 1, (int *)&denoise_parm_1);
                 break;
@@ -822,53 +828,50 @@ static int adapter_key_event_handler(struct sys_event *event)
                 printf("1级降噪\n");
                 adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SWITCH, 1, (int *)1);
                 adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SET_PARM, 1, (int *)&denoise_parm_2);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
-                os_time_dly(100);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+                // gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
+                // gpio_set_output_value(TCFG_LED_GREEN_PIN, 1);
                 break;
             case 3:
                 printf("2级降噪\n");
                 adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SWITCH, 1, (int *)1);
                 adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SET_PARM, 1, (int *)&denoise_parm_3);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
-                os_time_dly(100);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
-                os_time_dly(100);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
-                os_time_dly(100);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+                // gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                // gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
+                // os_time_dly(100);
+                // gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                // gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+                // os_time_dly(100);
+                // gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                // gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
+                // os_time_dly(100);
+                // gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                // gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
                 break;
             case 4:
                 printf("3级降噪\n");
                 adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SWITCH, 1, (int *)1);
                 adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SET_PARM, 1, (int *)&denoise_parm_4);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
-                os_time_dly(100);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
-                os_time_dly(100);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
-                os_time_dly(100);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
-                os_time_dly(100);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
-                os_time_dly(100);
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-                gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+                // gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                // gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
+                // os_time_dly(100);
+                // gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                // gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+                // os_time_dly(100);
+                // gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                // gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
+                // os_time_dly(100);
+                // gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                // gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+                // os_time_dly(100);
+                // gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                // gpio_set_output_value(TCFG_LED_BLUE_PIN, 0);
+                // os_time_dly(100);
+                // gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                // gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
                 break;
             default:
                 printf("关闭降噪\n");
-                gpio_set_direction(TCFG_LED_BLUE_PIN, 1);
+                // gpio_set_direction(TCFG_LED_BLUE_PIN, 1);
                 adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SWITCH, 1, (int *)1);
                 adapter_decoder_ioctrl(wireless_mic_media->downdecode, ADAPTER_DEC_IOCTRL_CMD_DENOISE_SET_PARM, 1, (int *)&denoise_parm_1);
                 break;
@@ -909,21 +912,29 @@ static int adapter_key_event_handler(struct sys_event *event)
         user_eq_file_change(index);
         break;
     case KEY_MUTE:
+        if (!wireless_conn_status) {
+            printf("no conn,break");
+            break;
+        }
+
         mute_index = !mute_index;
         printf("KEY_MUTE:%d\n", mute_index);
         printf("app_var.tx_mic_gain:%d\n", app_var.tx_mic_gain);
+        struct mic_tx2rx_info *mic_tx3rx_info = (struct mic_tx2rx_info *)zalloc(sizeof(struct mic_tx2rx_info));
+        mic_tx3rx_info->channel_flag = new_handle.channel_num;
         if(mute_index==0){
             user_audio_adc_mic_set_gain(0);
             app_var.flag_tx_mute = 1;
             syscfg_write(CFG_USER_MICVOL_MEM, &app_var.tx_mic_gain, 1);
-
+            mic_tx3rx_info->command = 0x03;
         }else{
             app_var.flag_tx_mute = 0;
             syscfg_read(CFG_USER_MICVOL_MEM, &app_var.tx_mic_gain, 1);
             printf("syscfg_read,app_var.tx_mic_gain:%d\n", app_var.tx_mic_gain);
             user_audio_adc_mic_set_gain(app_var.tx_mic_gain);
-
+            mic_tx3rx_info->command = 0x04;
         }
+        tx_send_data_to_rx(mic_tx3rx_info);
 #if WIRELESS_ECHO_ENABLE||WIRELESS_PLATE_REVERB_ENABLE
 
     case KEY_WIRELESS_MIC_ECHO_SET:
@@ -1021,13 +1032,18 @@ static int adapter_key_event_handler(struct sys_event *event)
     case  KEY_POWEROFF:
         key_poweroff_cnt = 0;
         flag_poweroff = 1;
+        if(new_handle.powerkey_flag == 1){
+            power_set_soft_poweroff();
+        }
         break;
     case  KEY_POWEROFF_HOLD:
         printf("KEY POWEROFF_HOLD\n");
-        if (flag_poweroff) {
-            if (++key_poweroff_cnt >= POWER_OFF_CNT) {
-                key_poweroff_cnt = 0;
-                ret = 1;
+        if(new_handle.powerkey_flag== 1){
+            if (flag_poweroff) {
+                if (++key_poweroff_cnt >= POWER_OFF_CNT) {
+                    key_poweroff_cnt = 0;
+                    ret = 1;
+                }
             }
         }
     #if WIRELESS_PAIR_BONDING
@@ -1055,6 +1071,7 @@ static int adapter_key_event_handler(struct sys_event *event)
             // gpio_longpress_pin0_reset_config(IO_PORTB_01, 0, 8);
         }
         bond_pair_cnt = 0;
+        new_handle.powerkey_flag = 1;
     #endif
         break;
     case  KEY_NULL:
@@ -1121,6 +1138,34 @@ static int adapter_key_event_handler(struct sys_event *event)
     }
     return ret;
 }
+static int wlm_denoise_timer = 0;
+static void wlm_denoise_status_sync()
+{
+    syscfg_read(CFG_USER_WLM_DENOISE_GEAR, app_var.flag_wlm_denoise, 2);
+    if(app_var.flag_wlm_denoise[1] == 0){
+        app_var.flag_wlm_denoise[1] = 1;
+    }
+
+    r_printf("%s:%d:%x:%d\n", __func__, __LINE__, app_var.flag_wlm_denoise[0], app_var.flag_wlm_denoise[1]);
+    
+    user_set_denoise(app_var.flag_wlm_denoise[1]);
+    struct mic_tx2rx_info *mic_tx2rx_info = (struct mic_tx2rx_info *)zalloc(sizeof(struct mic_tx2rx_info));
+    mic_tx2rx_info->channel_flag = new_handle.channel_num;
+    mic_tx2rx_info->command = app_var.flag_wlm_denoise[1];
+    tx_send_data_to_rx(mic_tx2rx_info);
+
+    if(wlm_denoise_timer){
+        sys_timeout_del(wlm_denoise_timer);
+        wlm_denoise_timer = 0;
+    }
+}
+
+void user_tx_conn_deal()
+{
+    if(wlm_denoise_timer==0){
+        wlm_denoise_timer = sys_timeout_add(NULL, wlm_denoise_status_sync, 500);
+    }
+}
 
 // tx 接收 rx 发过来的数据
 void wireless_mic_server_recieve_data(void *priv, void *data, u16 len)
@@ -1148,6 +1193,19 @@ void wireless_mic_server_recieve_data(void *priv, void *data, u16 len)
     }else if(ID==0x33){
         app_task_put_key_msg(KEY_VOICE_CHANGE_SW_BY_ID, 0);
         app_var.flag_wlm_denoise[3] = ID2;
+    }else if(ID==0x10){
+        new_handle.channel_num = ID2;
+    }else if(ID==0x11){
+        mute_index = 0;
+        user_audio_adc_mic_set_gain(0);
+        app_var.flag_tx_mute = 1;
+        syscfg_write(CFG_USER_MICVOL_MEM, &app_var.tx_mic_gain, 1);
+    }else if(ID==0x12){
+        if(app_var.flag_tx_mute == 0){
+            app_var.flag_wlm_denoise[1] = 2;
+            syscfg_write(CFG_USER_WLM_DENOISE_GEAR, app_var.flag_wlm_denoise, 2);
+            user_set_denoise(app_var.flag_wlm_denoise[1]);
+        }
     }
 
     // tx_send_data_to_rx(app_var.flag_tx_mute);
@@ -1167,14 +1225,17 @@ void wlm_denoise_action(u8 on)
         tx_send_data_to_rx(mic_tx2rx_info);
     }
 }
-
+static u8 led_check= 0;
 void usr_tx_init()
 {
-    app_var.flag_tx_conn = 0;
-	app_var.flag_pwr_on_denoise = 1;
+    if(led_check==0){
+        led_check=1;
+        app_var.flag_tx_conn = 0;
+	    app_var.flag_pwr_on_denoise = 1;
 #if USER_LED_EN	
-	sys_timer_add(NULL, led_scan, 10); // 10ms
+	    sys_timer_add(NULL, led_scan, 10); // 10ms
 #endif
+    }
 }
 
 void usr_tx_conn_deal()
@@ -1220,6 +1281,8 @@ static int event_handle_callback(struct sys_event *event)
                 wireless_conn_status = 1;
                 ui_update_status(STATUS_BT_CONN);
                 sys_auto_shut_down_disable();
+                
+                user_tx_conn_deal();
                 break;
             case ADAPTER_EVENT_DISCONN :
                 printf("ADAPTER_EVENT_DISCONN\n");

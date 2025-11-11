@@ -49,62 +49,34 @@
 
 static volatile u8 is_key_active = 0;
 #if 1
+#ifdef USER_UART0_EN
 #define LED_INIT_EN()     	    do{gpio_set_pull_up(IO_PORTC_03, 0);gpio_set_pull_down(IO_PORTC_03, 0);gpio_set_direction(IO_PORTC_03, 1);\
 									gpio_set_pull_up(IO_PORTC_04, 0);gpio_set_pull_down(IO_PORTC_04, 0);gpio_set_direction(IO_PORTC_04, 1);\
 									gpio_set_pull_up(IO_PORTC_02, 0);gpio_set_pull_down(IO_PORTC_02, 0);gpio_set_direction(IO_PORTC_02, 1);\
 									}while(0)
+#else
+#define LED_INIT_EN()     	    do{gpio_set_pull_up(IO_PORTC_03, 0);gpio_set_pull_down(IO_PORTC_03, 0);gpio_set_direction(IO_PORTC_03, 1);\
+									gpio_set_pull_up(IO_PORTC_04, 0);gpio_set_pull_down(IO_PORTC_04, 0);gpio_set_direction(IO_PORTC_04, 1);\
+									gpio_set_pull_up(IO_PORTC_02, 0);gpio_set_pull_down(IO_PORTC_02, 0);gpio_set_direction(IO_PORTC_02, 1);\
+									}while(0)
+#endif
 
 #define B_LED_ON()		//do{gpio_set_output_value(IO_PORTB_02,1);}while(0)
 #define B_LED_OFF()		//do{gpio_set_output_value(IO_PORTB_02,0);}while(0)
 #define R_LED_ON()		//do{gpio_set_output_value(IO_PORTB_03,1);}while(0)
 #define R_LED_OFF()		//do{gpio_set_output_value(IO_PORTB_03,0);}while(0)
 
-void usr_tx_led(u8 on)
+void user_charge_led(u8 on)
 {
     if(on){
-        gpio_set_direction(IO_PORTC_03, 0);
-        gpio_set_output_value(IO_PORTC_03, 0);
-    }else{
-        gpio_set_direction(IO_PORTC_03, 1);
-    }
-}
-
-void usr_led_denoise(u8 on)
-{
-    if(on){
-	    gpio_set_direction(IO_PORTC_04, 0);
-	    gpio_set_output_value(IO_PORTC_04, 0);
-    }else{
-	    gpio_set_direction(IO_PORTC_04, 1);
-    }
-}
-
-void usr_led_echo(u8 on)
-{
-	// gpio_set_direction(IO_PORTC_05, 0);
-	// gpio_set_output_value(IO_PORTC_05, on);
-}
-
-void usr_led_mute(u8 on)
-{
-    if(on){
-        gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
-	    gpio_set_output_value(TCFG_LED_GREEN_PIN, 1);
-    }else{
+        gpio_set_direction(TCFG_LED_RED_PIN, 0);
+        gpio_set_output_value(TCFG_LED_RED_PIN, 1);
+        gpio_set_direction(TCFG_LED_BLUE_PIN, 1);
         gpio_set_direction(TCFG_LED_GREEN_PIN, 1);
-    }
-    
-	// gpio_set_direction(IO_PORTC_05, 0);
-	// gpio_set_output_value(IO_PORTC_05, on);
-}
-
-void usr_led_charge(u8 on)
-{
-    if(on){
-        gpio_set_direction(IO_PORTC_02, 0);
-        gpio_set_output_value(IO_PORTC_02, 0);
     }else{
-        gpio_set_direction(IO_PORTC_02, 1);
+        gpio_set_direction(TCFG_LED_RED_PIN, 1);
+        gpio_set_direction(TCFG_LED_BLUE_PIN, 1);
+        gpio_set_direction(TCFG_LED_GREEN_PIN, 1);
     }
 }
 
@@ -120,34 +92,46 @@ void usr_led_vol_deal(u8 dn_up)
 void wlm_connect_led(u8 en) // blue
 {
     if(en){
-        gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
-        gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+        if(app_var.flag_tx_conn){
+            if(app_var.flag_tx_mute){
+                gpio_set_direction(TCFG_LED_BLUE_PIN, 1);
+                gpio_set_direction(TCFG_LED_GREEN_PIN, 1);
+                gpio_set_direction(TCFG_LED_RED_PIN, 0);
+                gpio_set_output_value(TCFG_LED_RED_PIN, 1);
+            }else{
+                if(app_var.flag_wlm_denoise[1] == 2){
+                    gpio_set_direction(TCFG_LED_GREEN_PIN, 0);
+                    gpio_set_output_value(TCFG_LED_GREEN_PIN, 1);
+                    gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                    gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+                    gpio_set_direction(TCFG_LED_RED_PIN, 1);
+                }else{
+                    gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+                    gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+                    gpio_set_direction(TCFG_LED_RED_PIN, 1);
+                    gpio_set_direction(TCFG_LED_GREEN_PIN, 1);
+                }
+            }
+        }else{
+            gpio_set_direction(TCFG_LED_RED_PIN, 1);
+            gpio_set_direction(TCFG_LED_GREEN_PIN, 1);
+            gpio_set_direction(TCFG_LED_BLUE_PIN, 0);
+            gpio_set_output_value(TCFG_LED_BLUE_PIN, 1);
+        }
     }else{
         gpio_set_direction(TCFG_LED_BLUE_PIN, 1);
+        gpio_set_direction(TCFG_LED_RED_PIN, 1);
+        gpio_set_direction(TCFG_LED_GREEN_PIN, 1);
     }
 }
 
 void led_scan(void)
 {
-    if(app_var.flag_tx_mute){
-        usr_led_mute(1);
-    }else{
-        usr_led_mute(0);
-    }
     if(app_var.flag_tx_conn){
 		if(app_var.tx_mute_cnt){
 			app_var.tx_mute_cnt--;
         }
-        wlm_connect_led(1);
 	}
-
-    if(app_var.flag_rf_dut){
-        B_LED_ON();
-        R_LED_ON();
-        usr_tx_led(1);
-        usr_led_charge(1);
-        return ;
-    }
 
     static u8 cnt_10ms = 0;
     static u8 flag_100ms = 0;
@@ -174,120 +158,30 @@ void led_scan(void)
         cnt_10ms = 0;
     }
 
-    if(flag_100ms){
-        if (app != APP_CHARGE_STATUS) { // normal mode.
-            if(app_var.flag_led_anti){
-                return ;
-            }
-
-            if(get_charge_online_flag() && (!get_charge_full_flag())){
-                app_var.flag_charge = 1;
-                app_var.flag_low_pwr = 0;
-            }else if(app_var.flag_vbat_low_pwr){ // get_vbat_level()<=345
-                app_var.flag_charge = 0;
-                app_var.flag_low_pwr = 1;
-            }else{
-                low_pwr_cnt = 0;
-                app_var.flag_charge = 0;
-                app_var.flag_low_pwr = 0;
-            }
-
-            if(1){
-                if(app_var.flag_tx_conn){    
-                    wlm_connect_led(1);                
-                    if(app_var.flag_charge){
-                        usr_led_charge(1);
-                        usr_led_denoise(0);
-                        usr_tx_led(0);
-                    }else if(app_var.flag_low_pwr){
-                        if(app_var.cnt_low_power_denoise){
-                            usr_led_denoise(1);
-                            usr_led_charge(0);
-                            usr_tx_led(0);
-                            app_var.cnt_low_power_denoise--;
-                        }else{
-                            usr_led_charge(flag_500ms);
-                            usr_led_denoise(0);
-                            usr_tx_led(0);
-                        }
-                    }else{
-                        if(usr_get_denoise_status()){
-                            usr_led_denoise(1);
-                            usr_tx_led(0);
-                        }else{
-                            usr_led_denoise(0);
-                            usr_tx_led(1);
-                        }
-
-                        if(app_var.cnt_denoise){
-                            app_var.cnt_denoise--;
-                        }
-
-                        usr_led_charge(0);
-                    }
-
-                    app_var.wlm_pair_clear = 0;
-                    // putchar('c');
+    if(new_handle.poweroff_charge_flag ==0){
+        if(!(app_var.flag_tx_conn)){
+            if(new_handle.pair_mode==0){
+                if(flag_1s){
+                    wlm_connect_led(1);
                 }else{
                     wlm_connect_led(0);
-                    // putchar('n');
-                    // g_printf("wlm_pair_clear=%d\n", app_var.wlm_pair_clear);
-                    if(app_var.wlm_pair_clear){
-                        usr_tx_led(flag_250ms);
-                        usr_led_charge(0);
-                        app_var.wlm_pair_clear--;
-                        if(app_var.wlm_pair_clear==1){
-                            ble_module_enable(0);
-                        }
-                    }else if(app_var.flag_charge){
-                        usr_tx_led(0);
-                        usr_led_charge(1);
-                    }else if(app_var.flag_low_pwr){
-                        usr_led_charge(flag_500ms);
-                        usr_tx_led(0);
-                    }else{
-                        usr_tx_led(flag_500ms);
-                        usr_led_charge(0);
-                    }
-                    usr_led_denoise(0);
-                    usr_led_echo(0);
-                    usr_led_mute(0);
-                    // usr_led_charge(0);
+                }
+            }else{
+                if(flag_250ms){
+                    wlm_connect_led(1);
+                }else{
+                    wlm_connect_led(0);
                 }
             }
-        }else{ // charge mode.
-            if(get_charge_online_flag() && (!get_charge_full_flag())){
-                usr_led_charge(1);
-            }else if(app_var.flag_vbat_low_pwr){ //get_vbat_level()<=345
-                // low_pwr_cnt++;
-                // if(low_pwr_cnt>10){
-                //     if(low_pwr_cnt>60){
-                //         low_pwr_cnt = 0;
-                //     }
-                //     usr_led_charge(0);
-                // }else if(low_pwr_cnt>5){
-                //     usr_led_charge(1);
-                // }
-                usr_led_charge(flag_500ms);
-            }else{
-                low_pwr_cnt = 0;
-                usr_led_charge(0);
-            }
-
-            usr_led_denoise(0);
-            usr_led_echo(0);
-            usr_led_mute(0);
-			usr_tx_led(0);
-        }
-
-        flag_100ms = 0;
-    }
-    if(!(app_var.flag_tx_conn)){
-        if(flag_500ms){
-            wlm_connect_led(1);
-            flag_500ms = 0;
         }else{
-            wlm_connect_led(0);
+            new_handle.pair_mode=0;
+            wlm_connect_led(1);
+        }
+    }else{
+        if(flag_1s == 1){
+            user_charge_led(1);
+        }else{
+            user_charge_led(0);
         }
     }
 }

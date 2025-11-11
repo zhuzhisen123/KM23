@@ -102,6 +102,15 @@ typedef struct __LRC_CONFIG {
     u8 lrc_change_mode;
 } _GNU_PACKED_ LRC_CONFIG;
 
+typedef struct __NEW_HANDLE {
+    u8 powerkey_flag;
+    u8 pair_mode;
+    u8 channel_num;
+    u8 poweroff_charge_flag;
+    u8 charge_full_flag;
+    u8 powerkey_check;
+} new_handle_t;
+
 void cfg_file_parse(u8 idx);
 const u8 *bt_get_mac_addr();
 void bt_get_tws_local_addr(u8 *addr);
@@ -118,7 +127,13 @@ extern void bt_update_mac_addr(u8 *addr);
 extern void bt_set_local_name(char *name, u8 len);
 extern void bt_reset_and_get_mac_addr(u8 *addr);
 extern void bt_set_pair_code_en(u8 en);
+extern new_handle_t new_handle;
 #define TCFG_LED_RED_BLUE_ON_PIN         (IO_GROUP_NUM * 5 + 5)
-#define TCFG_LED_GREEN_PIN    IO_PORTB_02 
-#define TCFG_LED_BLUE_PIN    IO_PORTB_03
+#define TCFG_LED_GREEN_PIN    IO_PORTC_04 
+#ifdef USER_UART0_EN
+#define TCFG_LED_BLUE_PIN    IO_PORTC_02
+#else
+#define TCFG_LED_BLUE_PIN    IO_PORTC_03
+#endif
+#define TCFG_LED_RED_PIN    IO_PORTC_02
 #endif

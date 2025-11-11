@@ -1048,7 +1048,7 @@ static void timer_trans_flow_test(void)
 }
 
 static const char ble_ext_name[] = "(BLE)";
-
+extern void check_power_on_key(void);
 void bt_ble_init(void)
 {
     log_info("***** ble_init******\n");
@@ -1097,8 +1097,10 @@ void bt_ble_init(void)
     if (conn_pair_info.pair_flag) {
         ble_module_enable(1);
     } else {
-        ble_module_enable(0);
+        ble_module_enable(1);
     }
+    // check_power_on_key();
+    usr_tx_init();
 #else
     ble_module_enable(1);
 #endif

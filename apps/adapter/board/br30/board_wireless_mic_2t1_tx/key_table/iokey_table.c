@@ -7,7 +7,7 @@
 const u16 key_io_table[KEY_IO_NUM_MAX][KEY_EVENT_MAX] = {
     //单击             //长按          //hold         //抬起            //双击                //三击
     [0] = {
-        KEY_WLM_DENOISE_SW,	KEY_POWEROFF,	KEY_POWEROFF_HOLD,	KEY_NULL,	KEY_WLM_EQ_SW,	KEY_NULL, KEY_NULL, KEY_USR_DUT
+        KEY_WLM_DENOISE_SW,	KEY_POWEROFF,	KEY_POWEROFF_HOLD,	KEY_POWEROFF_UP,	KEY_MUTE,	KEY_NULL, KEY_NULL, KEY_USR_DUT
     },
     [1] = {
         KEY_NULL,	KEY_NULL,			KEY_NULL,	KEY_NULL,	KEY_NULL, KEY_NULL

@@ -56,7 +56,7 @@
 #define TCFG_RF_TEST_EN					DISABLE
 
 //配对绑定
-#define WIRELESS_PAIR_BONDING			DISABLE
+#define WIRELESS_PAIR_BONDING			ENABLE//
 
 //使用PA延长距离,需要硬件添加PA电路,默认使用PC2/PC3
 #define CONFIG_BT_RF_USING_EXTERNAL_PA_EN	DISABLE
@@ -79,7 +79,12 @@
 //*********************************************************************************//
 #define TCFG_UART0_ENABLE					ENABLE_THIS_MOUDLE                     //串口打印模块使能
 #define TCFG_UART0_RX_PORT					NO_CONFIG_PORT                         //串口接收脚配置（用于打印可以选择NO_CONFIG_PORT）
-#define TCFG_UART0_TX_PORT  				IO_PORTC_05                            //串口发送脚配置
+// #define USER_UART0_EN                       1                                      //是否使用用户自定义的串口发送脚配置
+#ifdef USER_UART0_EN
+#define TCFG_UART0_TX_PORT					IO_PORTC_03                            //串口发送脚配置
+#else
+#define TCFG_UART0_TX_PORT					IO_PORTB_00                            //串口发送脚配置
+#endif
 #define TCFG_UART0_BAUDRATE  				1000000                                //串口波特率配置
 
 //*********************************************************************************//

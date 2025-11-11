@@ -61,7 +61,8 @@ u8 app_common_device_event_deal(struct sys_event *event)
     }
     return ret;
 }
-
+extern void check_power_on_key(void);
+static u8 user_check_pwron=0;
 void app_main()
 {
     log_info("app_main\n");
@@ -77,7 +78,6 @@ void app_main()
         app_curr_status = APP_NORMAL_STATUS;
     }
 
-    usr_tx_init();
 #if TCFG_CHARGE_ENABLE
     printf("set_charge_event_flag\n");
 #ifdef CONFIG_CPU_BR28
@@ -90,6 +90,8 @@ void app_main()
         case APP_CHARGE_STATUS:
 #if TCFG_CHARGE_ENABLE
             app_charge_run();
+            check_power_on_key();
+            user_check_pwron = 1;
 #endif
             break;
         default:
@@ -99,6 +101,9 @@ void app_main()
         if (app_curr_status == APP_NORMAL_STATUS) {
             break;
         }
+    }
+    if(user_check_pwron == 0){
+        check_power_on_key();
     }
     app_main_run();
 
